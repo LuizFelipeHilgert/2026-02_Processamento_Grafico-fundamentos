@@ -1,35 +1,24 @@
-# Processamento Gráfico 2025/2
+# Processamento Gráfico 2026/2
 
 Este repositório contém exemplos e códigos utilizados na disciplina de **Processamento Gráfico: Fundamentos** do curso Ciência da Computação da Unisinos. Ele é estruturado para facilitar a organização dos arquivos e a compilação dos projetos utilizando CMake.
 
 ## 📂 Estrutura do Repositório
 
 ```plaintext
-📂 FCG2025-1/
-├── 📂 include/               # Cabeçalhos e bibliotecas de terceiros
-│   ├── 📂 glad/              # Cabeçalhos da GLAD (OpenGL Loader)
+📂 PG2026-2/
+├── 📂 include/                # Cabeçalhos e bibliotecas de terceiros
+│   ├── 📂 glad/               # Cabeçalhos da GLAD (OpenGL Loader)
 │   │   ├── glad.h
-│   │   ├── 📂 KHR/           # Diretório com cabeçalhos da Khronos (GLAD)
+│   │   ├── 📂 KHR/            # Diretório com cabeçalhos da Khronos (GLAD)
 │   │       ├── khrplatform.h
-├── 📂 common/                # Código reutilizável entre os projetos
-│   ├── glad.c                # Implementação da GLAD
-├── 📂 src/                   # Código-fonte dos exemplos e exercícios
-│   ├── 📂 HelloTriangle/     # Exemplo básico de renderização com OpenGL
-│   │   └── main.cpp
-│   ├── 📂 HelloOrtho/        # Exemplo com projeção ortográfica
-│   │   └── main.cpp
-│   ├── 📂 HelloTransforms/   # Exemplo com múltiplas classes
-│   │   ├── main.cpp
-│   │   ├── Object.cpp
-│   │   ├── Object.h
-│   │   ├── Shader.cpp
-│   │   └── Shader.h
-│   ├── 📂 Lista1/
-│   │   ├── 📂 Ex5/
-│   │   │   └── main.cpp
-│   │   ├── 📂 Ex8/
-│   │   │   └── main.cpp
-│   └── ...                   # Outros exemplos e exercícios futuros
+├── 📂 common/                 # Código reutilizável entre os projetos
+│   ├── glad.c                 # Implementação da GLAD
+├── 📂 src/                    # Código-fonte dos exemplos e exercícios
+|   ├── 📁 Exemplos/           # Exemplos dados em aula
+│   │   └── 📂 HelloTriangle/ # O "Olá mundo!" do OpenGL
+|   |       └── main.cpp
+│   ├── 📂 Exercicios/        # Correções e/ou base para alguns exercicios
+│   │   └── ...                # Exercícios futuros
 ├── 📂 build/                 # Diretório gerado pelo CMake (não incluído no repositório)
 ├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
 ├── 📄 README.md              # Este arquivo, com a documentação do repositório
@@ -40,7 +29,7 @@ Este repositório contém exemplos e códigos utilizados na disciplina de **Proc
 Siga as instruções detalhadas em [GettingStarted.md](GettingStarted.md) para configurar e compilar o projeto.
 
 ## ⚠️ **IMPORTANTE: Baixar a GLAD Manualmente**
-Para que o projeto funcione corretamente, é necessário **baixar a GLAD manualmente** utilizando o **GLAD Generator**.
+Para que o projeto funcione corretamente, pode ser necessário **baixar a GLAD manualmente** utilizando o **GLAD Generator**.
 
 ### 🔗 **Acesse o web service do GLAD**:
 👉 [GLAD Generator](https://glad.dav1d.de/)
@@ -66,34 +55,37 @@ Após a geração, extraia os arquivos baixados e coloque-os nos diretórios cor
 Recomendamos que você crie um repositório próprio, estruturado com subdiretórios dentro de `src`, para organizar suas atividades da disciplina:
 
 ```
-📁 PG2025-2/
+📁 PG2026-2/
 ├── 📁 src/
-│ ├── 📁 Lista1/
-│ │ ├── 📁 Ex1/
-│ │ │ └── main.cpp
-│ │ ├── 📁 Ex2/
-│ │ │ └── main.cpp
-│ │ ├── 📁 Ex3/
-│ │ │ └── main.cpp
-│ │ └── README.md
-│ ├── 📁 Lista2/
-│ │ ├── 📁 Ex1/
-│ │ │ └── main.cpp
-│ │ ├── 📁 Ex2/
-│ │ │ └── main.cpp
-│ │ ├── 📁 Ex3/
-│ │ │ └── main.cpp
-│ │ └── README.md
-│ ├── 📁 TrabalhoGrauA/
-│ │ ├── main.cpp
-│ │ ├── Object.cpp
-│ │ ├── Object.h
-│ │ ├── Shader.cpp
-│ │ ├── Shader.h
-│ │ └── README.md
-│ └── ...
+│   ├── 📁 Exemplos/
+│   │   └── ...
+│   └── 📁 Exercicios/
+│       ├── 📁 Lista1/
+│       │   ├── 📁 Ex1/
+│       │   │   └── main.cpp
+│       │   ├── 📁 Ex2/
+│       │   │   └── main.cpp
+│       │   ├── 📁 Ex3/
+│       │   │   └── main.cpp
+│       │   └── README.md
+│       ├── 📁 Lista2/
+│       │   ├── 📁 Ex1/
+│       │   │   └── main.cpp
+│       │   ├── 📁 Ex2/
+│       │   │   └── main.cpp
+│       │   ├── 📁 Ex3/
+│       │   │   └── main.cpp
+│       │   └── README.md
+│       ├── 📁 TrabalhoGrauA/
+│       │   ├── main.cpp
+│       │   ├── Object.cpp
+│       │   ├── Object.h
+│       │   ├── Shader.cpp
+│       │   ├── Shader.h
+│       │   └── README.md
+│       └── ...
 ├── 📁 include/ # Cabeçalhos comuns (se necessário)
-├── 📁 common/ # Arquivos comuns (como glad.c)
+├── 📁 common/  # Arquivos comuns (como glad.c)
 ├── 📄 CMakeLists.txt
 └── 📄 README.md
 ```
@@ -101,7 +93,5 @@ Recomendamos que você crie um repositório próprio, estruturado com subdiretó
 > Cada diretório dentro de `src/` pode conter um arquivo `README.md` com informações específicas sobre a atividade ou exercício implementado.
 
 Consulte os seguintes materiais para ajuda adicional:
-- [Tutorial de Entregas pelo Github](misc/TutorialEntregasGithub.pdf)
-- [Organizando seu repositório no Github](misc/OrganizandoRepositorioGithub.pdf)
 - [Exemplo de README.md de repositório](misc/Template_README_Repositorio.md)
 - [Exemplo de README.md para cada projeto](misc/Template_README_Projeto.md)
