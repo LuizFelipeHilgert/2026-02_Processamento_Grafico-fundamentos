@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
   glfw
   GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG master  # Define a versão desejada da GLFW
+  GIT_TAG master
 )
 FetchContent_MakeAvailable(glfw)
 
@@ -38,10 +38,10 @@ include_directories(${CMAKE_SOURCE_DIR}/include/glad)
 include_directories(${glm_SOURCE_DIR})
 include_directories(${stb_image_SOURCE_DIR})
 
-# Lista de exercícios/projetos (um diretório para cada)
-# OBS.: Não pode ter acentos ou caracteres especiais
+# Lista de exercícios/projetos
 set(EXERCISES
     Exemplos/HelloTriangle
+    Exercicios/Lista1/Ex1
 )
 
 add_compile_options(-Wno-pragmas)
@@ -49,9 +49,11 @@ add_compile_options(-Wno-pragmas)
 # Define as bibliotecas para cada sistema operacional
 if(WIN32)
     set(OPENGL_LIBS opengl32)
+
 elseif(APPLE)
     find_library(OpenGL_LIBRARY OpenGL)
     set(OPENGL_LIBS ${OpenGL_LIBRARY})
+
 else()
     find_package(OpenGL REQUIRED)
     set(OPENGL_LIBS ${OPENGL_gl_LIBRARY})
@@ -60,27 +62,46 @@ endif()
 # Caminho esperado para a GLAD
 set(GLAD_C_FILE "${CMAKE_SOURCE_DIR}/common/glad.c")
 
-# Verifica se os arquivos da GLAD estão no lugar
-if (NOT EXISTS ${GLAD_C_FILE})
-    message(FATAL_ERROR "Arquivo glad.c não encontrado! 
-    Baixe a GLAD manualmente em https://glad.dav1d.de/ 
-    e coloque glad.h em include/glad/ e glad.c em common/")
+# Verifica se o arquivo da GLAD existe
+if(NOT EXISTS ${GLAD_C_FILE})
+    message(FATAL_ERROR
+        "Arquivo glad.c não encontrado!
+        Coloque glad.h em include/glad/
+        e glad.c em common/"
+    )
 endif()
 
-# Cria os executáveis (um por diretório listado em EXERCISES)
+# Cria os executáveis
 foreach(EXERCISE ${EXERCISES})
-    # Extrai o nome da pasta como nome do executável
+
+    # Nome da pasta = nome do executável
     get_filename_component(EXE_NAME ${EXERCISE} NAME)
 
-    # Coleta todos os .cpp dentro do diretório do exercício
+    # Procura os arquivos .cpp
     file(GLOB EXE_SOURCES src/${EXERCISE}/*.cpp)
 
-    # Cria o executável com todos os .cpp + glad.c
-    add_executable(${EXE_NAME} ${EXE_SOURCES} ${GLAD_C_FILE})
+    # Cria o executável
+    add_executable(
+        ${EXE_NAME}
+        ${EXE_SOURCES}
+        ${GLAD_C_FILE}
+    )
 
-    # Configura includes e bibliotecas
-    target_include_directories(${EXE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include/glad ${glm_SOURCE_DIR} ${stb_image_SOURCE_DIR})
+    # Configura includes
+    target_include_directories(
+        ${EXE_NAME}
+        PRIVATE
+        ${CMAKE_SOURCE_DIR}/include/glad
+        ${glm_SOURCE_DIR}
+        ${stb_image_SOURCE_DIR}
+    )
 
+    # Bibliotecas
+    target_link_libraries(
+        ${EXE_NAME}
+        glfw
+        ${OPENGL_LIBS}
+        glm::glm
+    )
 
-    target_link_libraries(${EXE_NAME} glfw ${OPENGL_LIBS} glm::glm )
 endforeach()

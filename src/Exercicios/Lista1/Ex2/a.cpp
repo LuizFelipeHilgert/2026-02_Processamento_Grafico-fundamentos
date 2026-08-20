@@ -156,7 +156,7 @@ int main()
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
 	
-		glDrawArrays(GL_LINE_STRIP, 0, 40);
+		glDrawArrays(GL_LINE_LOOP, 0, 8);
       
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -238,34 +238,14 @@ int setupShader()
 // A função retorna o identificador do VAO
 int setupGeometry()
 {
-
-	const int NUM_VERTICES = 44;
+	const int NUM_VERTICES = 8;
     GLfloat vertices [NUM_VERTICES * 3];
     float raio = 0.5f;
-    //arco de 270 graus
-    float angulo_inicial = 45.0f;
-    float angulo_final = 310.0f;
     for (int i = 0; i < NUM_VERTICES; i++) {
-        float angulo = angulo_inicial + (angulo_final - angulo_inicial) * i / (NUM_VERTICES - 1);
-        angulo = angulo * M_PI / 180.0f; // converter para radianos
+        float angulo = 2.0f * M_PI * i / NUM_VERTICES;
         vertices[i * 3 + 0] = raio * cos(angulo); // x
         vertices[i * 3 + 1] = raio * sin(angulo); // y
         vertices[i * 3 + 2] = 0.0f; // z
-
-			//pontos das retas da boca do pacman
-	vertices[40 * 3 + 0] = 0.0f;
-	vertices[40 * 3 + 1] = 0.0f;
-	vertices[40 * 3 + 2] = 0.0f;
-	vertices[41 * 3 + 0] = 0.5f * cos(45.0f * M_PI / 180.0f);
-	vertices[41 * 3 + 1] = 0.5f * sin(45.0f * M_PI / 180.0f);
-	vertices[41 *3 + 2] = 0.0f;
-	vertices[42 * 3 + 0] = 0.5f * cos(310.0f * M_PI / 180.0f);
-	vertices[42 * 3 + 1] = 0.5f * sin(310.0f * M_PI / 180.0f);
-	vertices[42 * 3 + 2] = 0.0f;
-	vertices[43 * 3 + 0] = 0.0f;
-	vertices[43 * 3 + 1] = 0.0f;
-	vertices[43 * 3 + 2] = 0.0f;
-	
     }
 
 	GLuint VBO, VAO;
