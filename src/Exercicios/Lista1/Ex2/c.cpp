@@ -10,21 +10,14 @@ using namespace std;
 
 
 #include <glad/glad.h>
-
-// GLFW
 #include <GLFW/glfw3.h>
-
-// Protótipo da função de callback de teclado
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 
-// Protótipos das funções
 int setupShader();
 int setupGeometry();
 
-// Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-// Código fonte do Vertex Shader (em GLSL): ainda hardcoded
 const GLchar *vertexShaderSource = R"glsl(
  #version 410 core
  layout (location = 0) in vec3 position;
@@ -34,7 +27,6 @@ const GLchar *vertexShaderSource = R"glsl(
  }
  )glsl";
 
-// Código fonte do Fragment Shader (em GLSL): ainda hardcoded
 const GLchar *fragmentShaderSource = R"glsl(
  #version 410 core
  uniform vec4 inputColor;
@@ -45,31 +37,19 @@ const GLchar *fragmentShaderSource = R"glsl(
  }
  )glsl";
 
-// Função MAIN
 int main()
 {
 	// Inicialização da GLFW
 	glfwInit();
 
-	// Muita atenção aqui: alguns ambientes não aceitam essas configurações
-	// Você deve adaptar para a versão do OpenGL suportada por sua placa
-	// Sugestão: comente essas linhas de código para desobrir a versão e
-	// depois atualize (por exemplo: 4.5 com 4 e 5)
+	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Ativa a suavização de serrilhado (MSAA) com 8 amostras por pixel
-	// glfwWindowHint(GLFW_SAMPLES, 8);
 
-	// Essencial para computadores da Apple
-	// #ifdef __APPLE__
-	//	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	// #endif
-
-	// Criação da janela GLFW
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Pac-Man", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -99,15 +79,10 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	// Compilando e buildando o programa de shader
 	GLuint shaderID = setupShader();
 
-	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
 
-	// Enviando a cor desejada (vec4) para o fragment shader
-	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
-	// que não está nos buffers
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
@@ -115,10 +90,8 @@ int main()
 	double prev_s = glfwGetTime();	// Define o "tempo anterior" inicial.
 	double title_countdown_s = 0.1; // Intervalo para atualizar o título da janela com o FPS.
 
-	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
-		// Este trecho de código é totalmente opcional: calcula e mostra a contagem do FPS na barra de título
 		{
 			double curr_s = glfwGetTime();		// Obtém o tempo atual.
 			double elapsed_s = curr_s - prev_s; // Calcula o tempo decorrido desde o último frame.
@@ -132,37 +105,35 @@ int main()
 
 				// Cria uma string e define o FPS como título da janela.
 				char tmp[256];
-				sprintf(tmp, "Ola Triangulo! -- Rossana\tFPS %.2lf", fps);
+				sprintf(tmp, "PAC_MAN\tFPS %.2lf", fps);
 				glfwSetWindowTitle(window, tmp);
 
-				title_countdown_s = 0.1; // Reinicia o temporizador para atualizar o título periodicamente.
+				title_countdown_s = 0.1; 
 			}
 		}
 
-		// Checa se houveram eventos de input (key pressed, mouse moved etc.) e chama as funções de callback correspondentes
 		glfwPollEvents();
 
-		// Limpa o buffer de cor
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // cor de fundo
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glLineWidth(10);
 		glPointSize(20);
 
-		glBindVertexArray(VAO); // Conectando ao buffer de geometria
+		glBindVertexArray(VAO); 
 
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); // enviando cor para variável uniform inputColor
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
+	
 	
 		glDrawArrays(GL_LINE_STRIP, 0, 40);
-      
-		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
-		// Troca os buffers da tela
+		glDrawArrays(GL_LINE_STRIP, 40, 2);
+		glDrawArrays(GL_LINE_STRIP, 42, 2);
+
 		glfwSwapBuffers(window);
 	}
+
 	// Pede pra OpenGL desalocar os buffers
 	glDeleteVertexArrays(1, &VAO);
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
@@ -170,20 +141,13 @@ int main()
 	return 0;
 }
 
-// Função de callback de teclado - só pode ter uma instância (deve ser estática se
-// estiver dentro de uma classe) - É chamada sempre que uma tecla for pressionada
-// ou solta via GLFW
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-// Esta função está bastante hardcoded - objetivo é compilar e "buildar" um programa de
-//  shader simples e único neste exemplo de código
-//  O código fonte do vertex e fragment shader está nos arrays vertexShaderSource e
-//  fragmentShader source no iniçio deste arquivo
-//  A função retorna o identificador do programa de shader
 int setupShader()
 {
 	// Vertex shader
@@ -231,26 +195,40 @@ int setupShader()
 	return shaderProgram;
 }
 
-// Esta função está bastante harcoded - objetivo é criar os buffers que armazenam a
-// geometria de um triângulo
-// Apenas atributo coordenada nos vértices
-// 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
-// A função retorna o identificador do VAO
+
 int setupGeometry()
 {
-	const int NUM_VERTICES = 40;
+
+	const int NUM_VERTICES = 44;
     GLfloat vertices [NUM_VERTICES * 3];
     float raio = 0.5f;
-    //arco de 270 graus
-    float angulo_inicial = 0.0f;
-    float angulo_final = 270.0f;
-    for (int i = 0; i < NUM_VERTICES; i++) {
-        float angulo = angulo_inicial + (angulo_final - angulo_inicial) * i / (NUM_VERTICES - 1);
+   
+    float angulo_inicial = 45.0f;
+    float angulo_final = 310.0f;
+    for (int i = 0; i < 40; i++) {
+        float angulo = angulo_inicial + (angulo_final - angulo_inicial) * i / 39;
         angulo = angulo * M_PI / 180.0f; // converter para radianos
         vertices[i * 3 + 0] = raio * cos(angulo); // x
         vertices[i * 3 + 1] = raio * sin(angulo); // y
         vertices[i * 3 + 2] = 0.0f; // z
-    }
+	}
+
+	vertices[40 * 3 + 0] = 0.0f;
+	vertices[40 * 3 + 1] = 0.0f;
+	vertices[40 * 3 + 2] = 0.0f;
+	
+	vertices[41 * 3 + 0] = 0.5f * cos(45.0f * M_PI / 180.0f);
+	vertices[41 * 3 + 1] = 0.5f * sin(45.0f * M_PI / 180.0f);
+	vertices[41 *3 + 2] = 0.0f;
+	vertices[42 * 3 + 0] = 0.5f * cos(310.0f * M_PI / 180.0f);
+	vertices[42 * 3 + 1] = 0.5f * sin(310.0f * M_PI / 180.0f);
+	vertices[42 * 3 + 2] = 0.0f;
+
+	vertices[43 * 3 + 0] = 0.0f;
+	vertices[43 * 3 + 1] = 0.0f;
+	vertices[43 * 3 + 2] = 0.0f;
+	
+    
 
 	GLuint VBO, VAO;
 	glGenBuffers(1, &VBO);
