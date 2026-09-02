@@ -1,97 +1,71 @@
-# Processamento Gráfico 2026/2
+# Processamento Gráfico — 2026/2
 
-Este repositório contém exemplos e códigos utilizados na disciplina de **Processamento Gráfico: Fundamentos** do curso Ciência da Computação da Unisinos. Ele é estruturado para facilitar a organização dos arquivos e a compilação dos projetos utilizando CMake.
+Repositório usado para organizar os exercícios, exemplos e trabalhos da disciplina de Processamento Gráfico: Fundamentos.
 
-## 📂 Estrutura do Repositório
+Os programas são feitos em C++ com OpenGL. Para montar a janela e acessar as funções gráficas, os códigos usam GLFW e GLAD.
 
-```plaintext
-📂 PG2026-2/
-├── 📂 include/                # Cabeçalhos e bibliotecas de terceiros
-│   ├── 📂 glad/               # Cabeçalhos da GLAD (OpenGL Loader)
-│   │   ├── glad.h
-│   │   ├── 📂 KHR/            # Diretório com cabeçalhos da Khronos (GLAD)
-│   │       ├── khrplatform.h
-├── 📂 common/                 # Código reutilizável entre os projetos
-│   ├── glad.c                 # Implementação da GLAD
-├── 📂 src/                    # Código-fonte dos exemplos e exercícios
-|   ├── 📁 Exemplos/           # Exemplos dados em aula
-│   │   └── 📂 HelloTriangle/ # O "Olá mundo!" do OpenGL
-|   |       └── main.cpp
-│   ├── 📂 Exercicios/        # Correções e/ou base para alguns exercicios
-│   │   └── ...                # Exercícios futuros
-├── 📂 build/                 # Diretório gerado pelo CMake (não incluído no repositório)
-├── 📄 CMakeLists.txt         # Configuração do CMake para compilar os projetos
-├── 📄 README.md              # Este arquivo, com a documentação do repositório
-├── 📄 GettingStarted.md      # Tutorial detalhado sobre como compilar usando o CMake
-├── 📄 ...
+## Organização
+
+```text
+PG2026-2/
+├── Common/                       # Arquivo comum da GLAD
+├── include/                      # Cabeçalhos usados pelos programas
+├── src/
+│   ├── Exemplos/                 # Códigos de exemplo vistos em aula
+│   └── Exercicios/
+│       ├── Lista1/               # Exercícios sobre primitivas e formas 2D
+│       ├── Lista2/               # Pasta reservada para a segunda lista
+│       ├── TrabalhoGrauA/         # Pasta reservada para o trabalho do Grau A
+│       └── TrabalhoGrauB/         # Pasta reservada para o trabalho do Grau B
+├── misc/                         # Materiais auxiliares e exemplos
+├── CMakeLists.txt                # Configuração de compilação do projeto
+└── GettingStarted.md             # Orientações para configurar e compilar
 ```
 
-Siga as instruções detalhadas em [GettingStarted.md](GettingStarted.md) para configurar e compilar o projeto.
+Cada exercício possui uma pasta própria, com seu código-fonte, um `README.md` explicando a atividade e um `.gitignore` para não enviar arquivos gerados pela compilação.
 
-## ⚠️ **IMPORTANTE: Baixar a GLAD Manualmente**
-Para que o projeto funcione corretamente, pode ser necessário **baixar a GLAD manualmente** utilizando o **GLAD Generator**.
+## Exercícios já incluídos
 
-### 🔗 **Acesse o web service do GLAD**:
-👉 [GLAD Generator](https://glad.dav1d.de/)
+- **Lista 1:** desenhos de triângulos, polígonos, círculo, estrela, espiral, triângulo colorido e uma casa feita com primitivas do OpenGL.
+- **Lista 2:** estrutura de pastas preparada para os próximos exercícios.
+- **Trabalhos Grau A e Grau B:** pastas separadas para os trabalhos da disciplina.
 
-### ⚙️ **Configuração necessária:**
-- **API:** OpenGL  
-- **Version:** 3.3+ (ou superior compatível com sua máquina)  
-- **Profile:** Core  
-- **Language:** C/C++  
+## Como compilar e executar
 
-### 📥 **Baixe e extraia os arquivos:**
-Após a geração, extraia os arquivos baixados e coloque-os nos diretórios correspondentes:
-- Copie **`glad.h`** para `include/glad/`
-- Copie **`khrplatform.h`** para `include/glad/KHR/`
-- Copie **`glad.c`** para `common/`
+É necessário ter o CMake e um compilador C++ instalados. No terminal, dentro da pasta do repositório, execute:
 
-🚨 **Sem esses arquivos, a compilação falhará!** É necessário colocar esses arquivos nos diretórios corretos, conforme a orientação acima.
-
----
-
-## 📚 Sugestão de Estrutura para seu próprio repositório
-
-Recomendamos que você crie um repositório próprio, estruturado com subdiretórios dentro de `src`, para organizar suas atividades da disciplina:
-
+```bash
+cmake -S . -B build
+cmake --build build
 ```
-📁 PG2026-2/
-├── 📁 src/
-│   ├── 📁 Exemplos/
-│   │   └── ...
-│   └── 📁 Exercicios/
-│       ├── 📁 Lista1/
-│       │   ├── 📁 Ex1/
-│       │   │   └── main.cpp
-│       │   ├── 📁 Ex2/
-│       │   │   └── main.cpp
-│       │   ├── 📁 Ex3/
-│       │   │   └── main.cpp
-│       │   └── README.md
-│       ├── 📁 Lista2/
-│       │   ├── 📁 Ex1/
-│       │   │   └── main.cpp
-│       │   ├── 📁 Ex2/
-│       │   │   └── main.cpp
-│       │   ├── 📁 Ex3/
-│       │   │   └── main.cpp
-│       │   └── README.md
-│       ├── 📁 TrabalhoGrauA/
-│       │   ├── main.cpp
-│       │   ├── Object.cpp
-│       │   ├── Object.h
-│       │   ├── Shader.cpp
-│       │   ├── Shader.h
-│       │   └── README.md
-│       └── ...
-├── 📁 include/ # Cabeçalhos comuns (se necessário)
-├── 📁 common/  # Arquivos comuns (como glad.c)
-├── 📄 CMakeLists.txt
-└── 📄 README.md
-```
-> Você pode alterar a estrutura dos diretórios, mas sempre que o fizer, adicione-os corretamente no CMakelists.txt.
-> Cada diretório dentro de `src/` pode conter um arquivo `README.md` com informações específicas sobre a atividade ou exercício implementado.
 
-Consulte os seguintes materiais para ajuda adicional:
-- [Exemplo de README.md de repositório](misc/Template_README_Repositorio.md)
-- [Exemplo de README.md para cada projeto](misc/Template_README_Projeto.md)
+O `CMakeLists.txt` cria um executável para cada arquivo `.cpp` que possui uma função `main()`. Por exemplo, os exercícios `a.cpp`, `b.cpp`, `c.cpp` e `d.cpp` da Lista 1 podem ser compilados separadamente, sem misturar vários `main()` no mesmo programa.
+
+Para abrir todos os programas implementados de uma vez, depois da compilação, execute:
+
+```bash
+for programa in \
+  build/Exemplos_HelloTriangle_HelloTriangle \
+  build/Exercicios_Lista1_Ex1_a \
+  build/Exercicios_Lista1_Ex1_b \
+  build/Exercicios_Lista1_Ex1_c \
+  build/Exercicios_Lista1_Ex1_d \
+  build/Exercicios_Lista1_Ex2_a \
+  build/Exercicios_Lista1_Ex2_b \
+  build/Exercicios_Lista1_Ex2_c \
+  build/Exercicios_Lista1_Ex2_circulo \
+  build/Exercicios_Lista1_Ex2_d \
+  build/Exercicios_Lista1_Ex2_e \
+  build/Exercicios_Lista1_Ex2_f \
+  build/Exercicios_Lista1_Ex3_main \
+  build/Exercicios_Lista1_Ex4_main
+do
+  "$programa" &
+done
+
+wait
+```
+
+Os arquivos vazios das atividades que ainda não foram desenvolvidas não geram executáveis.
+
+> Observação: a pasta `build/` é criada pelo CMake e não faz parte dos códigos dos exercícios.

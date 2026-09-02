@@ -38,12 +38,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include/glad)
 include_directories(${glm_SOURCE_DIR})
 include_directories(${stb_image_SOURCE_DIR})
 
-# Lista de exercícios/projetos
-set(EXERCISES
-    Exemplos/HelloTriangle
-    Exercicios/Lista1/Ex1
-)
-
 add_compile_options(-Wno-pragmas)
 
 # Define as bibliotecas para cada sistema operacional
@@ -71,37 +65,38 @@ if(NOT EXISTS ${GLAD_C_FILE})
     )
 endif()
 
-# Cria os executáveis
-foreach(EXERCISE ${EXERCISES})
+# Cria um executável para cada arquivo .cpp que possui uma função main().
+# Isso permite manter várias soluções na mesma pasta sem juntar vários main() no mesmo programa.
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/Exemplos/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Exercicios/*.cpp"
+)
 
-    # Nome da pasta = nome do executável
-    get_filename_component(EXE_NAME ${EXERCISE} NAME)
+foreach(SOURCE_FILE ${PROJECT_SOURCES})
+    file(READ "${SOURCE_FILE}" SOURCE_CONTENT)
+    string(FIND "${SOURCE_CONTENT}" "int main(" MAIN_POSITION)
 
-    # Procura os arquivos .cpp
-    file(GLOB EXE_SOURCES src/${EXERCISE}/*.cpp)
+    # Arquivos vazios ou auxiliares sem main() não geram executável.
+    if(MAIN_POSITION EQUAL -1)
+        continue()
+    endif()
 
-    # Cria o executável
-    add_executable(
-        ${EXE_NAME}
-        ${EXE_SOURCES}
-        ${GLAD_C_FILE}
-    )
+    # Exemplo: src/Exercicios/Lista1/Ex1/a.cpp -> Lista1_Ex1_a
+    file(RELATIVE_PATH RELATIVE_SOURCE "${CMAKE_SOURCE_DIR}/src" "${SOURCE_FILE}")
+    string(REPLACE "/" "_" TARGET_NAME "${RELATIVE_SOURCE}")
+    string(REPLACE ".cpp" "" TARGET_NAME "${TARGET_NAME}")
 
-    # Configura includes
-    target_include_directories(
-        ${EXE_NAME}
-        PRIVATE
+    add_executable(${TARGET_NAME} "${SOURCE_FILE}" ${GLAD_C_FILE})
+
+    target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/include/glad
         ${glm_SOURCE_DIR}
         ${stb_image_SOURCE_DIR}
     )
 
-    # Bibliotecas
-    target_link_libraries(
-        ${EXE_NAME}
+    target_link_libraries(${TARGET_NAME} PRIVATE
         glfw
         ${OPENGL_LIBS}
         glm::glm
     )
-
 endforeach()
