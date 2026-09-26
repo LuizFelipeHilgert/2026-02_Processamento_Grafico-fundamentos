@@ -1,5 +1,1 @@
-# Lista 2 — Exercício 1
-
-Pasta reservada para a resolução do exercício 1 da Lista 2.
-
-O arquivo `main.cpp` foi criado para receber o código quando a atividade for realizada.
+// 1. Modifique a janela do mundo (window/ortho) para os limites: xmin=-10, xmax=10, ymin=-10, ymax=10.
