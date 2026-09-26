@@ -1,5 +1,3 @@
-
-
 #include <iostream>
 #include <string>
 #include <assert.h>
@@ -42,7 +40,7 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 
 // Código fonte do Vertex Shader (em GLSL): ainda hardcoded
 const GLchar *vertexShaderSource = R"glsl(
- #version 400
+ #version 410 core
  layout (location = 0) in vec3 position;
  uniform mat4 projection;
  uniform mat4 model;
@@ -54,7 +52,7 @@ const GLchar *vertexShaderSource = R"glsl(
 
 // Código fonte do Fragment Shader (em GLSL): ainda hardcoded
 const GLchar *fragmentShaderSource = R"glsl(
- #version 400
+ #version 410 core
  uniform vec4 inputColor;
  out vec4 color;
  void main()
@@ -78,6 +76,10 @@ int main()
 	// Inicialização da GLFW
 	glfwInit();
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
 	if (!window)
@@ -96,6 +98,7 @@ int main()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cerr << "Falha ao inicializar GLAD" << std::endl;
+		glfwTerminate();
 		return -1;
 	}
 
@@ -108,6 +111,12 @@ int main()
 	
 	// Compilando e buildando o programa de shader
 	GLuint shaderID = setupShader();
+
+	if (shaderID == 0)
+	{
+		glfwTerminate();
+		return -1;
+	}
 
 	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
@@ -132,6 +141,9 @@ int main()
 
 	initializeColors();
 
+	// Localização da matriz model
+	GLint modelLoc = glGetUniformLocation(shaderID,"model");
+
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
@@ -149,7 +161,7 @@ int main()
 
 				// Cria uma string e define o FPS como título da janela.
 				char tmp[256];
-				sprintf(tmp, "Ola Triangulo! -- Rossana\tFPS %.2lf", fps);
+				snprintf(tmp, sizeof(tmp), "Ola Triangulo! -- Rossana\tFPS %.2lf", fps);
 				glfwSetWindowTitle(window, tmp);
 
 				title_countdown_s = 0.1; // Reinicia o temporizador para atualizar o título periodicamente.
@@ -173,7 +185,7 @@ int main()
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		for (int i=0; i<tris.size(); i++)
+		for (size_t i=0; i<tris.size(); i++)
 		{
 			glUniform4f(colorLoc, tris[i].color.r,tris[i].color.g, tris[i].color.b, 1.0f); 
 			//Matriz de transformações do objeto (triângulo) - model matrix
@@ -182,7 +194,6 @@ int main()
 			model = translate(model, vec3( tris[i].pos.x,  tris[i].pos.y, 0.0));
 			model = rotate(model, angle,vec3(0.0,0.0,1.0));
 			model = scale(model,vec3( tris[i].dimension.x, tris[i].dimension.y,1.0));
-			GLint modelLoc = glGetUniformLocation(shaderID,"model");
 			glUniformMatrix4fv(modelLoc,1,GL_FALSE,value_ptr(model));
 			// Chamada de desenho - drawcall
 			// Poligono Preenchido - GL_TRIANGLES
@@ -226,6 +237,8 @@ int setupShader()
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
 				  << infoLog << std::endl;
+		glDeleteShader(vertexShader);
+		return 0;
 	}
 	// Fragment shader
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -238,6 +251,9 @@ int setupShader()
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
 				  << infoLog << std::endl;
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+		return 0;
 	}
 	// Linkando os shaders e criando o identificador do programa de shader
 	GLuint shaderProgram = glCreateProgram();
@@ -251,6 +267,10 @@ int setupShader()
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
 				  << infoLog << std::endl;
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+		glDeleteProgram(shaderProgram);
+		return 0;
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
