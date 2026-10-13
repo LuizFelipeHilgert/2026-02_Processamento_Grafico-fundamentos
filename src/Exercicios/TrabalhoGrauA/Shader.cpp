@@ -11,9 +11,6 @@ Shader::Shader(
     const string& fragmentPath
 )
 {
-    // ========================================================
-    // LER VERTEX SHADER
-    // ========================================================
 
     ifstream vertexFile(
         vertexPath
@@ -58,9 +55,6 @@ Shader::Shader(
     const char* fragmentCode =
         fragmentSource.c_str();
 
-    // ========================================================
-    // VERTEX SHADER
-    // ========================================================
 
     GLuint vertexShader =
         glCreateShader(
@@ -114,9 +108,6 @@ Shader::Shader(
         return;
     }
 
-    // ========================================================
-    // FRAGMENT SHADER
-    // ========================================================
 
     GLuint fragmentShader =
         glCreateShader(
@@ -170,9 +161,6 @@ Shader::Shader(
         return;
     }
 
-    // ========================================================
-    // LINK
-    // ========================================================
 
     ID =
         glCreateProgram();

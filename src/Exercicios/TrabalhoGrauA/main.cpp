@@ -17,9 +17,6 @@
 
 using namespace std;
 
-// ============================================================
-// CONFIGURAÇÕES
-// ============================================================
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -33,25 +30,24 @@ const float ROAD_WIDTH = ROAD_RIGHT - ROAD_LEFT;
 const float PLAYER_SPEED = 300.0f;
 
 glm::vec2 playerPosition(400.0f, 500.0f);
-glm::vec2 playerSize(90.0f, 120.0f);
+glm::vec2 playerSize(110.0f, 145.0f);
 
 // Obstáculo
 glm::vec2 obstaclePosition(300.0f, -100.0f);
 glm::vec2 obstacleSize(65.0f, 90.0f);
-glm::vec2 obstacleHitboxSize(30.0f, 50.0f); //ficou muito grande
+glm::vec2 obstacleHitboxSize(30.0f, 50.0f); // hitbox menor que a imagem
 
  float OBSTACLE_SPEED = 300.0f;
 
 bool gameOver = false;
+int score = 0;
 
-// Movimento da pista
 float roadOffset = 0.0f;
 const float ROAD_SPEED = 250.0f;
 
+float treesOffset = 0.0f;
 
-// ============================================================
-// LER ARQUIVO
-// ============================================================
+
 
 string readFile(const string& path)
 {
@@ -74,9 +70,6 @@ string readFile(const string& path)
 }
 
 
-// ============================================================
-// SHADER
-// ============================================================
 
 GLuint setupShader()
 {
@@ -101,9 +94,6 @@ GLuint setupShader()
         fragmentSource.c_str();
 
 
-    // --------------------------------------------------------
-    // VERTEX SHADER
-    // --------------------------------------------------------
 
     GLuint vertexShader =
         glCreateShader(GL_VERTEX_SHADER);
@@ -149,9 +139,6 @@ GLuint setupShader()
     }
 
 
-    // --------------------------------------------------------
-    // FRAGMENT SHADER
-    // --------------------------------------------------------
 
     GLuint fragmentShader =
         glCreateShader(GL_FRAGMENT_SHADER);
@@ -194,9 +181,6 @@ GLuint setupShader()
     }
 
 
-    // --------------------------------------------------------
-    // LINK
-    // --------------------------------------------------------
 
     GLuint shaderProgram =
         glCreateProgram();
@@ -250,17 +234,14 @@ GLuint setupShader()
 }
 
 
-// ============================================================
-// CARREGAR TEXTURA
-// ============================================================
 
-GLuint loadTexture(const string& path)
+GLuint loadTexture(const string& path, bool flipVertically = true)
 {
     int width;
     int height;
     int channels;
 
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(flipVertically);
 
     unsigned char* data =
         stbi_load(
@@ -319,18 +300,28 @@ GLuint loadTexture(const string& path)
         texture
     );
 
+GLint wrapMode = GL_CLAMP_TO_EDGE;
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_S,
-        GL_CLAMP_TO_EDGE
-    );
+if (
+    path == "textures/grass.png" ||
+    path == "textures/road.png"
+)
+{
+    wrapMode = GL_REPEAT;
+}
 
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_WRAP_T,
-        GL_CLAMP_TO_EDGE
-    );
+glTexParameteri(
+    GL_TEXTURE_2D,
+    GL_TEXTURE_WRAP_S,
+    wrapMode
+);
+
+glTexParameteri(
+    GL_TEXTURE_2D,
+    GL_TEXTURE_WRAP_T,
+    wrapMode
+);
+    
 
     glTexParameteri(
         GL_TEXTURE_2D,
@@ -373,15 +364,12 @@ GLuint loadTexture(const string& path)
 }
 
 
-// ============================================================
-// GEOMETRIA
-// ============================================================
 
 GLuint setupGeometry()
 {
     float vertices[] =
     {
-        // posição              // textura
+        // posição              // UV
 
         -0.5f, -0.5f, 0.0f,
          0.0f,  0.0f,
@@ -435,9 +423,6 @@ GLuint setupGeometry()
     );
 
 
-    // --------------------------------------------------------
-    // POSIÇÃO
-    // --------------------------------------------------------
 
     glVertexAttribPointer(
         0,
@@ -451,9 +436,6 @@ GLuint setupGeometry()
     glEnableVertexAttribArray(0);
 
 
-    // --------------------------------------------------------
-    // COORDENADA DA TEXTURA
-    // --------------------------------------------------------
 
     glVertexAttribPointer(
         1,
@@ -479,9 +461,6 @@ GLuint setupGeometry()
 }
 
 
-// ============================================================
-// DESENHAR RETÂNGULO COLORIDO
-// ============================================================
 
 void drawRectangle(
     GLuint shader,
@@ -590,9 +569,99 @@ void drawRectangle(
 }
 
 
-// ============================================================
-// DESENHAR TEXTURA
-// ============================================================
+const unsigned char* getBitmapGlyph(char character)
+{
+    static const unsigned char space[] = { 0, 0, 0, 0, 0, 0, 0 };
+    static const unsigned char A[] = { 14, 17, 17, 31, 17, 17, 17 };
+    static const unsigned char E[] = { 31, 16, 16, 30, 16, 16, 31 };
+    static const unsigned char G[] = { 15, 16, 16, 23, 17, 17, 15 };
+    static const unsigned char M[] = { 17, 27, 21, 21, 17, 17, 17 };
+    static const unsigned char N[] = { 17, 25, 21, 19, 17, 17, 17 };
+    static const unsigned char O[] = { 14, 17, 17, 17, 17, 17, 14 };
+    static const unsigned char P[] = { 30, 17, 17, 30, 16, 16, 16 };
+    static const unsigned char R[] = { 30, 17, 17, 30, 20, 18, 17 };
+    static const unsigned char S[] = { 15, 16, 16, 14, 1, 1, 30 };
+    static const unsigned char T[] = { 31, 4, 4, 4, 4, 4, 4 };
+    static const unsigned char V[] = { 17, 17, 17, 17, 17, 10, 4 };
+    static const unsigned char zero[] = { 14, 17, 19, 21, 25, 17, 14 };
+    static const unsigned char one[] = { 4, 12, 4, 4, 4, 4, 14 };
+    static const unsigned char two[] = { 14, 17, 1, 2, 4, 8, 31 };
+    static const unsigned char three[] = { 30, 1, 1, 14, 1, 1, 30 };
+    static const unsigned char four[] = { 2, 6, 10, 18, 31, 2, 2 };
+    static const unsigned char five[] = { 31, 16, 16, 30, 1, 1, 30 };
+    static const unsigned char six[] = { 14, 16, 16, 30, 17, 17, 14 };
+    static const unsigned char seven[] = { 31, 1, 2, 4, 8, 8, 8 };
+    static const unsigned char eight[] = { 14, 17, 17, 14, 17, 17, 14 };
+    static const unsigned char nine[] = { 14, 17, 17, 15, 1, 1, 14 };
+
+    switch (character)
+    {
+        case 'A': return A;
+        case 'E': return E;
+        case 'G': return G;
+        case 'M': return M;
+        case 'N': return N;
+        case 'O': return O;
+        case 'P': return P;
+        case 'R': return R;
+        case 'S': return S;
+        case 'T': return T;
+        case 'V': return V;
+        case '0': return zero;
+        case '1': return one;
+        case '2': return two;
+        case '3': return three;
+        case '4': return four;
+        case '5': return five;
+        case '6': return six;
+        case '7': return seven;
+        case '8': return eight;
+        case '9': return nine;
+        default: return space;
+    }
+}
+
+
+void drawBitmapText(
+    GLuint shader,
+    GLuint VAO,
+    const string& text,
+    glm::vec2 position,
+    float pixelSize,
+    glm::vec4 color,
+    const glm::mat4& projection
+)
+{
+    for (size_t characterIndex = 0; characterIndex < text.size(); characterIndex++)
+    {
+        const unsigned char* glyph = getBitmapGlyph(text[characterIndex]);
+
+        for (int row = 0; row < 7; row++)
+        {
+            for (int column = 0; column < 5; column++)
+            {
+                if ((glyph[row] & (1 << (4 - column))) == 0)
+                {
+                    continue;
+                }
+
+                drawRectangle(
+                    shader,
+                    VAO,
+                    glm::vec2(
+                        position.x + (characterIndex * 6 + column + 0.5f) * pixelSize,
+                        position.y + (row + 0.5f) * pixelSize
+                    ),
+                    glm::vec2(pixelSize * 0.9f, pixelSize * 0.9f),
+                    color,
+                    projection
+                );
+            }
+        }
+    }
+}
+
+
 
 void drawTexture(
     GLuint shader,
@@ -709,9 +778,6 @@ void drawTexture(
 }
 
 
-// ============================================================
-// MOVIMENTO DO CARRO
-// ============================================================
 
 void updatePlayer(
     GLFWwindow* window,
@@ -742,9 +808,6 @@ void updatePlayer(
     }
 
 
-    // --------------------------------------------------------
-    // LIMITES DA PISTA
-    // --------------------------------------------------------
 
     float halfWidth =
         playerSize.x / 2.0f;
@@ -773,9 +836,6 @@ void updatePlayer(
 }
 
 
-// ============================================================
-// COLISÃO
-// ============================================================
 
 bool checkCollision(
     glm::vec2 posA,
@@ -819,15 +879,9 @@ bool checkCollision(
 }
 
 
-// ============================================================
-// MAIN
-// ============================================================
 
 int main()
 {
-    // ========================================================
-    // GLFW
-    // ========================================================
 
     if (!glfwInit())
     {
@@ -859,9 +913,6 @@ int main()
     );
 
 
-    // ========================================================
-    // JANELA
-    // ========================================================
 
     GLFWwindow* window =
         glfwCreateWindow(
@@ -887,9 +938,6 @@ int main()
     glfwMakeContextCurrent(window);
 
 
-    // ========================================================
-    // GLAD
-    // ========================================================
 
     if (
         !gladLoadGLLoader(
@@ -908,9 +956,6 @@ int main()
     }
 
 
-    // ========================================================
-    // INFORMAÇÕES
-    // ========================================================
 
     cout << endl;
 
@@ -938,9 +983,6 @@ int main()
          << endl;
 
 
-    // ========================================================
-    // VIEWPORT
-    // ========================================================
 
     glViewport(
         0,
@@ -950,9 +992,6 @@ int main()
     );
 
 
-    // ========================================================
-    // BLENDING
-    // ========================================================
 
     glEnable(GL_BLEND);
 
@@ -962,9 +1001,6 @@ int main()
     );
 
 
-    // ========================================================
-    // SHADER
-    // ========================================================
 
     GLuint shader =
         setupShader();
@@ -983,21 +1019,16 @@ int main()
     }
 
 
-    // ========================================================
-    // GEOMETRIA
-    // ========================================================
 
     GLuint VAO =
         setupGeometry();
 
 
-    // ========================================================
-    // TEXTURAS
-    // ========================================================
 
     GLuint carTexture =
         loadTexture(
-            "textures/car.png"
+            "textures/car.png",
+            false
         );
 
 
@@ -1005,7 +1036,13 @@ int main()
         loadTexture(
             "textures/obstacle.png"
         );
+    GLuint grassTexture =
+        loadTexture("textures/grass.png");
 
+    GLuint roadTexture =
+        loadTexture("textures/road.png"); 
+    GLuint treesTexture =
+        loadTexture("textures/trees.png"); 
 
     if (carTexture == 0)
     {
@@ -1047,9 +1084,6 @@ int main()
     }
 
 
-    // ========================================================
-    // PROJEÇÃO ORTOGRÁFICA
-    // ========================================================
 
     glm::mat4 projection =
         glm::ortho(
@@ -1060,25 +1094,16 @@ int main()
         );
 
 
-    // ========================================================
-    // TEMPO
-    // ========================================================
 
     float lastFrame =
         (float)glfwGetTime();
 
 
-    // ========================================================
-    // GAME LOOP
-    // ========================================================
 
     while (
         !glfwWindowShouldClose(window)
     )
     {
-        // ----------------------------------------------------
-        // DELTA TIME
-        // ----------------------------------------------------
 
         float currentFrame =
             (float)glfwGetTime();
@@ -1098,9 +1123,6 @@ int main()
         }
 
 
-        // ----------------------------------------------------
-        // ESC
-        // ----------------------------------------------------
 
         if (
             glfwGetKey(
@@ -1116,15 +1138,9 @@ int main()
         }
 
 
-        // ====================================================
-        // JOGO
-        // ====================================================
 
         if (!gameOver)
         {
-            // ------------------------------------------------
-            // MOVIMENTO DO CARRO
-            // ------------------------------------------------
 
             updatePlayer(
                 window,
@@ -1132,16 +1148,10 @@ int main()
             );
 
 
-            // ------------------------------------------------
-            // MOVIMENTO DO OBSTÁCULO
-            // ------------------------------------------------
 
             obstaclePosition.y +=
                 OBSTACLE_SPEED * deltaTime;
-            OBSTACLE_SPEED += 20.0f * deltaTime; // Aumenta a velocidade do obstáculo ao longo do tempo
-            // ------------------------------------------------
-            // COLISÃO
-            // ------------------------------------------------
+            OBSTACLE_SPEED += 20.0f * deltaTime; // velocidade aumenta aos poucos
 
             if (
                 checkCollision(
@@ -1161,9 +1171,6 @@ int main()
             }
 
 
-            // ------------------------------------------------
-            // RESET DO OBSTÁCULO
-            // ------------------------------------------------
 
             if (
                 obstaclePosition.y
@@ -1171,6 +1178,8 @@ int main()
                 HEIGHT + obstacleSize.y
             )
             {
+                score++;
+
                 obstaclePosition.y =
                     -obstacleSize.y;
 
@@ -1189,24 +1198,24 @@ int main()
             }
 
 
-            // ------------------------------------------------
-            // MOVIMENTO DA PISTA
-            // ------------------------------------------------
 
             roadOffset +=
-                ROAD_SPEED * deltaTime;
+                OBSTACLE_SPEED * deltaTime;
 
 
             if (roadOffset >= 100.0f)
             {
                 roadOffset -= 100.0f;
             }
+            treesOffset += OBSTACLE_SPEED * deltaTime;
+
+            if (treesOffset >= 900.0f)
+            {
+                treesOffset -= 900.0f;
+            }
+
         }
 
-
-        // ====================================================
-        // REINICIAR
-        // ====================================================
 
         if (
             gameOver &&
@@ -1217,6 +1226,7 @@ int main()
         )
         {
             gameOver = false;
+            score = 0;
 
             playerPosition =
                 glm::vec2(
@@ -1240,9 +1250,6 @@ int main()
         }
 
 
-        // ====================================================
-        // LIMPAR TELA
-        // ====================================================
 
         glClearColor(
             0.2f,
@@ -1257,125 +1264,91 @@ int main()
         );
 
 
-        // ====================================================
-        // GRAMA
-        // ====================================================
-
-        drawRectangle(
-            shader,
-            VAO,
-
-            glm::vec2(
-                WIDTH / 2.0f,
-                HEIGHT / 2.0f
-            ),
-
-            glm::vec2(
-                WIDTH,
-                HEIGHT
-            ),
-
-            glm::vec4(
-                0.15f,
-                0.45f,
-                0.18f,
-                1.0f
-            ),
-
-            projection
-        );
+drawTexture(
+    shader,
+    VAO,
+    grassTexture,
+    glm::vec2(
+        WIDTH / 2.0f,
+        HEIGHT / 2.0f
+    ),
+    glm::vec2(
+        WIDTH,
+        HEIGHT
+    ),
+    projection
+);
 
 
-        // ====================================================
-        // ASFALTO
-        // ====================================================
+for (int i = 0; i < 2; i++)
+{
+    float y = i * 450.0f + treesOffset;
 
-        drawRectangle(
-            shader,
-            VAO,
+    // Reaparece no topo após sair da tela
+    while (y > HEIGHT + 75.0f)
+    {
+        y -= 900.0f;
+    }
 
-            glm::vec2(
-                WIDTH / 2.0f,
-                HEIGHT / 2.0f
-            ),
+    drawTexture(
+        shader,
+        VAO,
+        treesTexture,
+        glm::vec2(90.0f, y),
+        glm::vec2(45.0f, 90.0f),
+        projection
+    );
 
-            glm::vec2(
-                ROAD_WIDTH,
-                HEIGHT
-            ),
-
-            glm::vec4(
-                0.12f,
-                0.12f,
-                0.12f,
-                1.0f
-            ),
-
-            projection
-        );
-
-
-        // ====================================================
-        // BORDA ESQUERDA
-        // ====================================================
-
-        drawRectangle(
-            shader,
-            VAO,
-
-            glm::vec2(
-                ROAD_LEFT + 5.0f,
-                HEIGHT / 2.0f
-            ),
-
-            glm::vec2(
-                10.0f,
-                HEIGHT
-            ),
-
-            glm::vec4(
-                0.9f,
-                0.9f,
-                0.9f,
-                1.0f
-            ),
-
-            projection
-        );
+    drawTexture(
+        shader,
+        VAO,
+        treesTexture,
+        glm::vec2(710.0f, y),
+        glm::vec2(45.0f, 90.0f),
+        projection
+    );
+}
+       
 
 
-        // ====================================================
-        // BORDA DIREITA
-        // ====================================================
+drawRectangle(
+    shader,
+    VAO,
+    glm::vec2(
+        WIDTH / 2.0f,
+        HEIGHT / 2.0f
+    ),
+    glm::vec2(
+        ROAD_WIDTH,
+        HEIGHT
+    ),
+    glm::vec4(
+        0.20f,
+        0.20f,
+        0.22f,
+        1.0f
+    ),
+    projection
+);
 
-        drawRectangle(
-            shader,
-            VAO,
+drawRectangle(
+    shader,
+    VAO,
+    glm::vec2(ROAD_LEFT, HEIGHT / 2.0f),
+    glm::vec2(10.0f, HEIGHT),
+    glm::vec4(0.90f, 0.90f, 0.90f, 1.0f),
+    projection
+);
 
-            glm::vec2(
-                ROAD_RIGHT - 5.0f,
-                HEIGHT / 2.0f
-            ),
+drawRectangle(
+    shader,
+    VAO,
+    glm::vec2(ROAD_RIGHT, HEIGHT / 2.0f),
+    glm::vec2(10.0f, HEIGHT),
+    glm::vec4(0.90f, 0.90f, 0.90f, 1.0f),
+    projection
+);
 
-            glm::vec2(
-                10.0f,
-                HEIGHT
-            ),
-
-            glm::vec4(
-                0.9f,
-                0.9f,
-                0.9f,
-                1.0f
-            ),
-
-            projection
-        );
-
-
-        // ====================================================
-        // FAIXA CENTRAL
-        // ====================================================
 
         for (int i = -1; i < 8; i++)
         {
@@ -1411,9 +1384,6 @@ int main()
         }
 
 
-        // ====================================================
-        // OBSTÁCULO
-        // ====================================================
 
         drawTexture(
             shader,
@@ -1427,9 +1397,6 @@ int main()
         );
 
 
-        // ====================================================
-        // CARRO
-        // ====================================================
 
         drawTexture(
             shader,
@@ -1443,9 +1410,19 @@ int main()
         );
 
 
-        // ====================================================
-        // FINAL DO FRAME
-        // ====================================================
+        stringstream scoreText;
+        scoreText << "PONTOS " << score;
+
+        drawBitmapText(
+            shader,
+            VAO,
+            scoreText.str(),
+            glm::vec2(20.0f, 20.0f),
+            3.0f,
+            glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+            projection
+        );
+
 
         glfwSwapBuffers(window);
 
@@ -1453,35 +1430,41 @@ int main()
     }
 
 
-    // ========================================================
-    // LIMPEZA
-    // ========================================================
 
-    glDeleteTextures(
-        1,
-        &carTexture
-    );
+glDeleteTextures(
+    1,
+    &carTexture
+);
 
-    glDeleteTextures(
-        1,
-        &obstacleTexture
-    );
+glDeleteTextures(
+    1,
+    &obstacleTexture
+);
 
 
-    glDeleteVertexArrays(
-        1,
-        &VAO
-    );
+glDeleteTextures(
+    1,
+    &grassTexture
+);
 
+glDeleteTextures(
+    1,
+    &roadTexture
+);
 
-    glDeleteProgram(
-        shader
-    );
+glDeleteVertexArrays(
+    1,
+    &VAO
+);
 
+glDeleteProgram(
+    shader
+);
 
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
+glDeleteTextures(
+    1,
+    &treesTexture
+);
 
     return 0;
 }
