@@ -2,6 +2,9 @@
 
 **Aluno:** Luiz Felipe Hilgert
 
+# Link vídeo da apresentação
+https://canva.link/jxq36k1j17squev
+
 ## Sobre o jogo
 
 Este é um jogo 2D desenvolvido em C++ com OpenGL. O jogador controla um carro em uma pista e precisa desviar de um obstáculo que vem em sua direção. A pontuação aumenta quando o obstáculo passa pelo carro. Se os dois colidirem, o jogo termina.
