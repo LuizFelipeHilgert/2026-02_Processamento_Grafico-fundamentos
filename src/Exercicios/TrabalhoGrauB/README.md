@@ -8,9 +8,9 @@
 
 ## 1. Descrição do Projeto
 
-Este projeto consiste no desenvolvimento de um aplicativo de edição de imagens utilizando Python e a biblioteca OpenCV.
+Este projeto consiste no desenvolvimento de edição de imagens utilizando Python e a biblioteca OpenCV.
 
-O aplicativo possui dois modos de funcionamento: **Modo Foto**, para edição de imagens estáticas, e **Modo Vídeo**, para aplicação de filtros em tempo real utilizando a webcam.
+Possui dois modos de funcionamento: **Modo Foto**, para edição de imagens estáticas, e **Modo Vídeo**, para aplicação de filtros em tempo real utilizando a webcam.
 
 O objetivo é aplicar conceitos de processamento digital de imagens, manipulação de canais de cores, operações matemáticas, filtros e interação com mouse e teclado.
 
